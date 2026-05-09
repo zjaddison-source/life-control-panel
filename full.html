@@ -106,16 +106,16 @@ function buildGrid(){
 
     const isToday = (i === currentDay);
 
-    let prevScore = parseInt(localStorage.getItem("day"+(i-1)) || "0");
+let prevScore = parseInt(localStorage.getItem("day"+(i-1)) || "0");
 
 let isStrong = score >= 3;
 let wasStrong = prevScore >= 3;
 
 let connectStyle = (isStrong && wasStrong) ? "rounded-sm" : "rounded";
 
-cell.className = `h-6 w-6 ${connectStyle} ${color}
-${isToday ? "ring-2 ring-yellow-300" : ""}`;
-    ${isToday ? "ring-2 ring-yellow-300" : ""}`;
+cell.className =
+  "h-6 w-6 " + connectStyle + " " + color + " " +
+  (isToday ? "ring-2 ring-yellow-300" : "");
 
     grid.appendChild(cell);
   }
