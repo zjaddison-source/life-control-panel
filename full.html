@@ -45,7 +45,6 @@ Complete Day →
 </div>
 
 <script>
-<script>
 const boxes = ["body","sobriety","career","mind"];
 const scoreEl = document.getElementById("score");
 const grid = document.getElementById("grid");
@@ -131,9 +130,26 @@ function buildGrid() {
   }
 }
 
+// ✅ Advance to next day
+function nextDay() {
+  currentDay++;
+  localStorage.setItem("currentDay", currentDay);
 
-  
+  // reset checkboxes
+  boxes.forEach(id => {
+    document.getElementById(id).checked = false;
+    localStorage.removeItem(id);
+  });
+
+  updateScore();
+  buildGrid();
+}
+
+// ✅ Initial load
+updateScore();
+buildGrid();
 </script>
+``
 
 </body>
 </html>
