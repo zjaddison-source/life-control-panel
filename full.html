@@ -39,6 +39,10 @@
 <div class="text-sm text-slate-400">
   Day <span id="dayNumber"></span> of 90
 </div>
+
+<div class="text-sm text-slate-400">
+  Progress: <span id="progressPercent"></span>%
+</div>
   
 <!-- Grid -->
 <div class="bg-slate-800 p-4 rounded-2xl">
@@ -62,6 +66,9 @@ if(!localStorage.getItem("initialized")){
 let currentDay = parseInt(localStorage.getItem("currentDay"));
 const dayNumber = document.getElementById("dayNumber");
 dayNumber.textContent = currentDay;
+const progressPercent = document.getElementById("progressPercent");
+progressPercent.textContent = Math.round((currentDay / 90) * 100);
+
 
 // LOAD STATE
 boxes.forEach(id=>{
