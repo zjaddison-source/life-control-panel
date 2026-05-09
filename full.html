@@ -137,21 +137,27 @@ function updateScore(){
 // Build 90-day grid
 function buildGrid(){
   grid.innerHTML = "";
+
   for(let i=1;i<=90;i++){
     const cell = document.createElement("div");
 
-    const score = localStorage.getItem("day"+i) || 0;
+    const score = parseInt(localStorage.getItem("day"+i) || "0");
 
-    cell.className = "h-6 w-6 rounded " +
-      (score>=3 ? "bg-green-500" :
-       score>=1 ? "bg-yellow-500" :
-       "bg-slate-700");
+    let color = "bg-slate-800";
 
-    cell.title = "Day "+i+" Score:"+score;
+    if(score === 4) color = "bg-emerald-400";
+    else if(score === 3) color = "bg-emerald-600";
+    else if(score === 2) color = "bg-amber-500";
+    else if(score === 1) color = "bg-rose-500";
+
+    cell.className = `h-6 w-6 rounded ${color} transition transform hover:scale-110`;
+
+    cell.title = `Day ${i} — Score: ${score}/4`;
 
     grid.appendChild(cell);
   }
 }
+
 
 // Track today's progress into grid
 function updateGrid(){
