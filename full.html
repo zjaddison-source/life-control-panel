@@ -1,3 +1,7 @@
+let currentDay = parseInt(localStorage.getItem("currentDay") || "1");
+localStorage.setItem("currentDay", currentDay);
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -165,6 +169,13 @@ transition transform hover:scale-110`;
 
 // Track today's progress into grid
 function updateGrid(){
+  let score = parseInt(localStorage.getItem("todayScore") || "0");
+
+  localStorage.setItem("day" + currentDay, score);
+
+  buildGrid();
+}
+
   let currentDay = parseInt(localStorage.getItem("currentDay")||"1");
   let score = localStorage.getItem("todayScore")||0;
 
@@ -172,6 +183,7 @@ function updateGrid(){
 }
 
 updateScore();
+updateGrid();
 buildGrid();
 </script>
 
