@@ -1,13 +1,11 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
 <title>Full Control Panel</title>
-https://cdn.tailwindcss.comscript>
-</head>
 
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
 
 <body class="bg-slate-950 text-white p-6">
 
@@ -16,176 +14,103 @@ https://cdn.tailwindcss.comscript>
 <!-- Header -->
 <div class="flex justify-between items-center">
   <h1 class="text-3xl font-bold">Full Control Panel</h1>
-  →
-    ← Back
-  </a>
+  <a href="/" class="text-sm text-emerald-300">← Back</a>
 </div>
 
-<!-- Identity -->
+<!-- Today -->
 <div class="bg-slate-800 p-4 rounded-2xl">
-  <div class="text-sm text-slate-400">Identity</div>
-  <div class="text-xl font-semibold">
-    I don’t break promises to myself.
+  <h2 class="text-lg font-semibold mb-2">Today</h2>
+
+  <label><input type="checkbox" id="body"> Body</label><br>
+  <label><input type="checkbox" id="sobriety"> Sobriety</label><br>
+  <label><input type="checkbox" id="career"> Career</label><br>
+  <label><input type="checkbox" id="mind"> Mind</label>
+
+  <div class="mt-3 text-lg">
+    Score: <span id="score">0</span>/4
   </div>
 </div>
 
-<!-- Grid + Score Row -->
-<div class="grid md:grid-cols-2 gap-6">
-
-  <!-- Today -->
-  <div class="bg-slate-800 p-4 rounded-2xl">
-    <h2 class="text-lg font-semibold mb-2">Today</h2>
-
-    <div class="space-y-2">
-      <label><input type="checkbox" id="body"> Body</label><br>
-      <label><input type="checkbox" id="sobriety"> Sobriety</label><br>
-      <label><input type="checkbox" id="career"> Career</label><br>
-      <label><input type="checkbox" id="mind"> Mind</label>
-    </div>
-
-    <div class="mt-3 text-lg">
-      Score: <span id="score">0</span>/4
-    </div>
-  </div>
-
-  <!-- Mood -->
-  <div class="bg-slate-800 p-4 rounded-2xl">
-    <h2 class="text-lg font-semibold mb-2">Mood</h2>
-
-    <input type="range" min="1" max="5" id="mood" class="w-full">
-
-    <div class="mt-2">
-      Level: <span id="moodValue"></span>
-    </div>
-  </div>
-
-</div>
-
-<!-- 90 Day Grid -->
+<!-- Grid -->
 <div class="bg-slate-800 p-4 rounded-2xl">
   <h2 class="text-lg font-semibold mb-2">90-Day Grid</h2>
-
   <div id="grid" class="grid grid-cols-10 gap-1"></div>
 </div>
 
-<!-- Reflection -->
-<div class="bg-slate-800 p-4 rounded-2xl">
-  <h2 class="text-lg font-semibold mb-2">Reflection</h2>
-
-  <textarea id="notes"
-    class="w-full p-2 rounded text-black"
-    placeholder="What mattered, what slipped, one adjustment">
-  </textarea>
 </div>
 
-</div>
-
-<!-- SCRIPT STAYS THE SAME -->
-
-<!-- Back -->
-<div>
-  <a href="/" class="text-blue-400 underline">← Back to simple dashboard</a>
-</div>
-
-</div>
-
-<script>
 <script>
 const boxes = ["body","sobriety","career","mind"];
-
 const scoreEl = document.getElementById("score");
 const grid = document.getElementById("grid");
-const mood = document.getElementById("mood");
-const moodValue = document.getElementById("moodValue");
-const notes = document.getElementById("notes");
 
-// ✅ Set current day (default = day 1)
-let currentDay = parseInt(localStorage.getItem("currentDay") || "1");
-localStorage.setItem("currentDay", currentDay);
+// BEGIN SAFE BASELINE
+// Reset data if needed (prevents broken state)
+if(!localStorage.getItem("initialized")){
+  localStorage.setItem("currentDay","1");
+  localStorage.setItem("initialized","true");
+}
 
-// ✅ Load checkbox state
+let currentDay = parseInt(localStorage.getItem("currentDay"));
+
+// Load checkbox state
 boxes.forEach(id => {
-  if(localStorage.getItem(id) === "true"){
+  if(localStorage.getItem(id)==="true"){
     document.getElementById(id).checked = true;
   }
 });
 
-// ✅ Load notes
-notes.value = localStorage.getItem("notes") || "";
-notes.addEventListener("input", () => {
-  localStorage.setItem("notes", notes.value);
-});
-
-// ✅ Load mood
-mood.value = localStorage.getItem("mood") || 3;
-moodValue.textContent = mood.value;
-
-mood.addEventListener("input", () => {
-  localStorage.setItem("mood", mood.value);
-  moodValue.textContent = mood.value;
-});
-
-// ✅ Handle checkboxes
+// Checkbox listeners
 boxes.forEach(id => {
-  document.getElementById(id).addEventListener("change", () => {
-    localStorage.setItem(id, document.getElementById(id).checked);
+  document.getElementById(id).addEventListener("change",()=>{
+    localStorage.setItem(id,document.getElementById(id).checked);
     updateScore();
-    updateGrid();
   });
 });
 
-// ✅ Calculate score
-function updateScore() {
+// Calculate score
+function updateScore(){
   let score = 0;
 
-  boxes.forEach(id => {
+  boxes.forEach(id=>{
     if(document.getElementById(id).checked) score++;
   });
 
   scoreEl.textContent = score;
-  localStorage.setItem("todayScore", score);
-}
 
-// ✅ Save today's score to the correct day
-function updateGrid() {
-  let score = parseInt(localStorage.getItem("todayScore") || "0");
-  localStorage.setItem("day" + currentDay, score);
+  localStorage.setItem("day"+currentDay,score);
+
   buildGrid();
 }
 
-// ✅ Build the 90-day grid
-function buildGrid() {
+// BUILD GRID (guaranteed render)
+function buildGrid(){
   grid.innerHTML = "";
 
-  for(let i = 1; i <= 90; i++) {
+  for(let i=1;i<=90;i++){
     const cell = document.createElement("div");
 
-    const score = parseInt(localStorage.getItem("day" + i) || "0");
+    const score = parseInt(localStorage.getItem("day"+i) || "0");
 
-    let color = "bg-slate-800";
+    let color = "bg-slate-700";
 
     if(score === 4) color = "bg-emerald-400";
     else if(score === 3) color = "bg-emerald-600";
     else if(score === 2) color = "bg-amber-500";
     else if(score === 1) color = "bg-rose-500";
 
-    let isToday = (i === currentDay);
+    const isToday = (i === currentDay);
 
-    cell.className = `h-6 w-6 rounded ${color}
-      ${isToday ? "ring-2 ring-yellow-300" : ""}
-      transition transform hover:scale-110`;
-
-    cell.title = `Day ${i} — Score: ${score}/4`;
+    cell.className = `h-6 w-6 rounded ${color} 
+    ${isToday ? "ring-2 ring-yellow-300" : ""}`;
 
     grid.appendChild(cell);
   }
 }
 
-// ✅ Initialize everything
+// INITIAL LOAD
 updateScore();
-updateGrid();
 buildGrid();
-</script>
 </script>
 
 </body>
