@@ -111,15 +111,19 @@ let prevScore = parseInt(localStorage.getItem("day"+(i-1)) || "0");
 let isStrong = score >= 3;
 let wasStrong = prevScore >= 3;
 
-let connectStyle = (isStrong && wasStrong) ? "rounded-sm" : "rounded";
+// Strong streak = remove gap + square corners
+let connectStyle = (isStrong && wasStrong)
+  ? "rounded-none -ml-1"
+  : "rounded";
+
+// Regular spacing for non-streak cells
+if(!isStrong) {
+  connectStyle = "rounded";
+}
 
 cell.className =
   "h-6 w-6 " + connectStyle + " " + color + " " +
   (isToday ? "ring-2 ring-yellow-300" : "");
-
-    grid.appendChild(cell);
-  }
-}
 
 // INITIAL LOAD
 updateScore();
