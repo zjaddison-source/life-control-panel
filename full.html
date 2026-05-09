@@ -45,106 +45,94 @@ Complete Day →
 </div>
 
 <script>
+<script>
 const boxes = ["body","sobriety","career","mind"];
 const scoreEl = document.getElementById("score");
 const grid = document.getElementById("grid");
 
-// BEGIN SAFE BASELINE
-// Reset data if needed (prevents broken state)
-if(!localStorage.getItem("initialized")){
-  localStorage.setItem("currentDay","1");
-  localStorage.setItem("initialized","true");
+// ✅ Safe initialization (prevents broken storage)
+if (!localStorage.getItem("initialized")) {
+  localStorage.setItem("currentDay", "1");
+  localStorage.setItem("initialized", "true");
 }
 
+// ✅ Get current day
 let currentDay = parseInt(localStorage.getItem("currentDay"));
 
-// Load checkbox state
+// ✅ Load checkbox state
 boxes.forEach(id => {
-  if(localStorage.getItem(id)==="true"){
+  if (localStorage.getItem(id) === "true") {
     document.getElementById(id).checked = true;
   }
 });
 
-// Checkbox listeners
+// ✅ Handle checkbox changes
 boxes.forEach(id => {
-  document.getElementById(id).addEventListener("change",()=>{
-    localStorage.setItem(id,document.getElementById(id).checked);
+  document.getElementById(id).addEventListener("change", () => {
+    localStorage.setItem(id, document.getElementById(id).checked);
     updateScore();
   });
 });
 
-// Calculate score
-function updateScore(){
+// ✅ Calculate score + save to current day
+function updateScore() {
   let score = 0;
 
-  boxes.forEach(id=>{
-    if(document.getElementById(id).checked) score++;
+  boxes.forEach(id => {
+    if (document.getElementById(id).checked) score++;
   });
 
   scoreEl.textContent = score;
 
-  localStorage.setItem("day"+currentDay,score);
+  // Save score directly to the grid day
+  localStorage.setItem("day" + currentDay, score);
 
   buildGrid();
 }
 
-// BUILD GRID (guaranteed render)
-function buildGrid(){
+// ✅ Build FULL 90-day grid (with visible streak chains)
+function buildGrid() {
   grid.innerHTML = "";
 
-  for(let i=1;i<=90;i++){
+  for (let i = 1; i <= 90; i++) {
     const cell = document.createElement("div");
 
-    const score = parseInt(localStorage.getItem("day"+i) || "0");
+    const score = parseInt(localStorage.getItem("day" + i) || "0");
 
     let color = "bg-slate-700";
 
-    if(score === 4) color = "bg-emerald-400";
-    else if(score === 3) color = "bg-emerald-600";
-    else if(score === 2) color = "bg-amber-500";
-    else if(score === 1) color = "bg-rose-500";
+    if (score === 4) color = "bg-emerald-400";
+    else if (score === 3) color = "bg-emerald-600";
+    else if (score === 2) color = "bg-amber-500";
+    else if (score === 1) color = "bg-rose-500";
 
-    const isToday = (i === currentDay);
+    const prevScore = parseInt(localStorage.getItem("day" + (i - 1)) || "0");
 
-let prevScore = parseInt(localStorage.getItem("day"+(i-1)) || "0");
+    const isStrong = score >= 3;
+    const wasStrong = prevScore >= 3;
 
-let isStrong = score >= 3;
-let wasStrong = prevScore >= 3;
+    // ✅ STRONG VISUAL CONNECTION
+    let style = "h-6 w-6 ";
 
-// Strong streak = remove gap + square corners
-let connectStyle = (isStrong && wasStrong)
-  ? "rounded-none -ml-1"
-  : "rounded";
+    if (isStrong && wasStrong) {
+      style += "bg-emerald-500 -ml-1 "; // pull together
+    }
 
-// Regular spacing for non-streak cells
-if(!isStrong) {
-  connectStyle = "rounded";
+    style += color + " rounded";
+
+    // Highlight current day
+    if (i === currentDay) {
+      style += " ring-2 ring-yellow-300";
+    }
+
+    cell.className = style;
+
+    grid.appendChild(cell);
+  }
 }
 
-cell.className =
-  "h-6 w-6 " + connectStyle + " " + color + " " +
-  (isToday ? "ring-2 ring-yellow-300" : "");
 
-// INITIAL LOAD
-updateScore();
-buildGrid();
-
-
-  function nextDay(){
-  currentDay++;
-  localStorage.setItem("currentDay", currentDay);
-
-  // reset checkboxes
-  boxes.forEach(id=>{
-    document.getElementById(id).checked = false;
-    localStorage.removeItem(id);
-  });
-
-  updateScore();
-  buildGrid();
-
-  alert("Day advanced. Keep going.");
-}
+  
 </script>
 
 </body>
