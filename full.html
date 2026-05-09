@@ -36,6 +36,10 @@
   </button>
 </div>
 
+<div class="text-sm text-slate-400">
+  Day <span id="dayNumber"></span> of 90
+</div>
+  
 <!-- Grid -->
 <div class="bg-slate-800 p-4 rounded-2xl">
   <h2 class="text-lg font-semibold mb-2">90-Day Grid</h2>
@@ -56,6 +60,8 @@ if(!localStorage.getItem("initialized")){
 }
 
 let currentDay = parseInt(localStorage.getItem("currentDay"));
+const dayNumber = document.getElementById("dayNumber");
+dayNumber.textContent = currentDay;
 
 // LOAD STATE
 boxes.forEach(id=>{
