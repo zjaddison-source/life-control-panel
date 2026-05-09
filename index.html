@@ -52,18 +52,51 @@
 </div>
 
 <script>
-const checkboxes = document.querySelectorAll("input[type=checkbox]")
-const scoreEl = document.getElementById("score")
 
-checkboxes.forEach(box => {
-  box.addEventListener("change", updateScore)
-})
+const boxes = ["body","sobriety","career","mind"];
+
+const scoreEl = document.getElementById("score");
+
+// Load saved state
+boxes.forEach(id => {
+  const saved = localStorage.getItem(id);
+  if(saved === "true") {
+    document.getElementById(id).checked = true;
+  }
+});
+
+// Load notes
+const notes = document.getElementById("notes");
+notes.value = localStorage.getItem("notes") || "";
+
+// Save notes
+notes.addEventListener("input", () => {
+  localStorage.setItem("notes", notes.value);
+});
+
+// Handle checkboxes
+boxes.forEach(id => {
+  const el = document.getElementById(id);
+
+  el.addEventListener("change", () => {
+    localStorage.setItem(id, el.checked);
+    updateScore();
+  });
+});
 
 function updateScore() {
-  let score = 0
-  checkboxes.forEach(b => { if (b.checked) score++ })
-  scoreEl.textContent = score
+  let score = 0;
+
+  boxes.forEach(id => {
+    if(document.getElementById(id).checked) score++;
+  });
+
+  scoreEl.textContent = score;
 }
+
+// Initialize score on load
+updateScore();
+
 </script>
 
 </body>
