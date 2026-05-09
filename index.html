@@ -7,25 +7,64 @@
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body class="bg-slate-950 text-white">
-  <div style="text-align:center; padding:40px;">
-    
-    <h1 style="font-size:28px; font-weight:bold;">
-      90-Day Life Control Panel
-    </h1>
+<body class="bg-slate-950 text-white p-6">
 
-    <p style="margin-top:16px;">
-      Your live dashboard is connected ✅
-    </p>
+<div class="max-w-3xl mx-auto space-y-6">
 
-    <p style="margin-top:16px;">
-      Next step:
-    </p>
+  <h1 class="text-3xl font-bold">90-Day Life Control Panel</h1>
 
-    <p style="margin-top:8px;">
-      We'll install the full tracking system here.
-    </p>
+  <p class="text-slate-400">
+    Simple. Daily. Honest. Protect the streak.
+  </p>
 
+  <div class="bg-slate-800 p-4 rounded-2xl">
+    <h2 class="text-xl font-semibold mb-2">Today's Score</h2>
+
+    <div class="space-y-2">
+
+      <label><input type="checkbox" id="body"> Body (Workout)</label><br>
+      <label><input type="checkbox" id="sobriety"> Sobriety</label><br>
+      <label><input type="checkbox" id="career"> Career</label><br>
+      <label><input type="checkbox" id="mind"> Mind</label>
+
+    </div>
+
+    <div class="mt-4 text-lg">
+      Total: <span id="score">0</span>/4
+    </div>
   </div>
+
+  <div class="bg-slate-800 p-4 rounded-2xl">
+    <h2 class="text-xl font-semibold mb-2">Reflection</h2>
+
+    <textarea id="notes" class="w-full p-2 rounded text-black"
+      placeholder="What mattered, what slipped, one adjustment"></textarea>
+  </div>
+
+  <div class="bg-slate-800 p-4 rounded-2xl">
+    <h2 class="text-xl font-semibold mb-2">Identity</h2>
+
+    <p id="identity">
+      I don’t break promises to myself.
+    </p>
+  </div>
+
+</div>
+
+<script>
+const checkboxes = document.querySelectorAll("input[type=checkbox]")
+const scoreEl = document.getElementById("score")
+
+checkboxes.forEach(box => {
+  box.addEventListener("change", updateScore)
+})
+
+function updateScore() {
+  let score = 0
+  checkboxes.forEach(b => { if (b.checked) score++ })
+  scoreEl.textContent = score
+}
+</script>
+
 </body>
 </html>
