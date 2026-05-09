@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8" />
   <title>90-Day Life Control Panel</title>
-
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
@@ -13,24 +12,33 @@
 
   <h1 class="text-3xl font-bold">90-Day Life Control Panel</h1>
 
-  <p class="text-slate-400">
-    Simple. Daily. Honest. Protect the streak.
-  </p>
-
   <div class="bg-slate-800 p-4 rounded-2xl">
     <h2 class="text-xl font-semibold mb-2">Today's Score</h2>
 
     <div class="space-y-2">
-
-      <label><input type="checkbox" id="body"> Body (Workout)</label><br>
+      <label><input type="checkbox" id="body"> Body</label><br>
       <label><input type="checkbox" id="sobriety"> Sobriety</label><br>
       <label><input type="checkbox" id="career"> Career</label><br>
       <label><input type="checkbox" id="mind"> Mind</label>
-
     </div>
 
     <div class="mt-4 text-lg">
       Total: <span id="score">0</span>/4
+    </div>
+
+    <div class="mt-2 text-sm text-slate-400">
+      Target: 3+ = win day
+    </div>
+  </div>
+
+  <div id="warning" class="hidden bg-amber-600/20 border border-amber-400 p-4 rounded-2xl">
+    ⚠️ Never miss twice. Get one win NOW.
+  </div>
+
+  <div class="bg-slate-800 p-4 rounded-2xl">
+    <h2 class="text-xl font-semibold mb-2">Streak</h2>
+    <div class="text-2xl font-bold">
+      🔥 <span id="streak">0</span> days
     </div>
   </div>
 
@@ -41,32 +49,23 @@
       placeholder="What mattered, what slipped, one adjustment"></textarea>
   </div>
 
-  <div class="bg-slate-800 p-4 rounded-2xl">
-    <h2 class="text-xl font-semibold mb-2">Identity</h2>
-
-    <p id="identity">
-      I don’t break promises to myself.
-    </p>
-  </div>
-
 </div>
 
 <script>
-
 const boxes = ["body","sobriety","career","mind"];
-
 const scoreEl = document.getElementById("score");
+const notes = document.getElementById("notes");
+const streakEl = document.getElementById("streak");
+const warningEl = document.getElementById("warning");
 
-// Load saved state
+// Load checkboxes
 boxes.forEach(id => {
-  const saved = localStorage.getItem(id);
-  if(saved === "true") {
+  if(localStorage.getItem(id) === "true"){
     document.getElementById(id).checked = true;
   }
 });
 
 // Load notes
-const notes = document.getElementById("notes");
 notes.value = localStorage.getItem("notes") || "";
 
 // Save notes
@@ -74,29 +73,53 @@ notes.addEventListener("input", () => {
   localStorage.setItem("notes", notes.value);
 });
 
-// Handle checkboxes
+// Handle boxes
 boxes.forEach(id => {
   const el = document.getElementById(id);
-
   el.addEventListener("change", () => {
     localStorage.setItem(id, el.checked);
     updateScore();
   });
 });
 
-function updateScore() {
+// Update score
+function updateScore(){
   let score = 0;
-
   boxes.forEach(id => {
     if(document.getElementById(id).checked) score++;
   });
 
   scoreEl.textContent = score;
+
+  checkWarning(score);
 }
 
-// Initialize score on load
-updateScore();
+// Simple streak logic
+function updateStreak(score){
+  let streak = parseInt(localStorage.getItem("streak") || "0");
 
+  if(score >= 3){
+    streak++;
+  } else {
+    streak = 0;
+  }
+
+  localStorage.setItem("streak", streak);
+  streakEl.textContent = streak;
+}
+
+// Warning logic
+function checkWarning(score){
+  if(score < 2){
+    warningEl.classList.remove("hidden");
+  } else {
+    warningEl.classList.add("hidden");
+  }
+}
+
+// Init
+updateScore();
+streakEl.textContent = localStorage.getItem("streak") || "0";
 </script>
 
 </body>
