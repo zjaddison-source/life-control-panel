@@ -8,9 +8,6 @@
 https://cdn.tailwindcss.comscript>
 </head>
 
-  let currentDay = parseInt(localStorage.getItem("currentDay") || "1");
-localStorage.setItem("currentDay", currentDay);
-
 
 <body class="bg-slate-950 text-white p-6">
 
@@ -93,61 +90,77 @@ localStorage.setItem("currentDay", currentDay);
 </div>
 
 <script>
+<script>
 const boxes = ["body","sobriety","career","mind"];
+
 const scoreEl = document.getElementById("score");
 const grid = document.getElementById("grid");
 const mood = document.getElementById("mood");
 const moodValue = document.getElementById("moodValue");
 const notes = document.getElementById("notes");
 
-// Load state
+// ✅ Set current day (default = day 1)
+let currentDay = parseInt(localStorage.getItem("currentDay") || "1");
+localStorage.setItem("currentDay", currentDay);
+
+// ✅ Load checkbox state
 boxes.forEach(id => {
-  if(localStorage.getItem(id)==="true"){
+  if(localStorage.getItem(id) === "true"){
     document.getElementById(id).checked = true;
   }
 });
 
+// ✅ Load notes
 notes.value = localStorage.getItem("notes") || "";
+notes.addEventListener("input", () => {
+  localStorage.setItem("notes", notes.value);
+});
+
+// ✅ Load mood
 mood.value = localStorage.getItem("mood") || 3;
 moodValue.textContent = mood.value;
 
-// Save notes
-notes.addEventListener("input",()=>{
-  localStorage.setItem("notes",notes.value);
-});
-
-// Save mood
-mood.addEventListener("input",()=>{
-  localStorage.setItem("mood",mood.value);
+mood.addEventListener("input", () => {
+  localStorage.setItem("mood", mood.value);
   moodValue.textContent = mood.value;
 });
 
-// Handle checkboxes
-boxes.forEach(id=>{
-  document.getElementById(id).addEventListener("change",()=>{
-    localStorage.setItem(id,document.getElementById(id).checked);
+// ✅ Handle checkboxes
+boxes.forEach(id => {
+  document.getElementById(id).addEventListener("change", () => {
+    localStorage.setItem(id, document.getElementById(id).checked);
     updateScore();
     updateGrid();
   });
 });
 
-function updateScore(){
+// ✅ Calculate score
+function updateScore() {
   let score = 0;
-  boxes.forEach(id=>{
+
+  boxes.forEach(id => {
     if(document.getElementById(id).checked) score++;
   });
+
   scoreEl.textContent = score;
-  localStorage.setItem("todayScore",score);
+  localStorage.setItem("todayScore", score);
 }
 
-// Build 90-day grid
-function buildGrid(){
+// ✅ Save today's score to the correct day
+function updateGrid() {
+  let score = parseInt(localStorage.getItem("todayScore") || "0");
+  localStorage.setItem("day" + currentDay, score);
+  buildGrid();
+}
+
+// ✅ Build the 90-day grid
+function buildGrid() {
   grid.innerHTML = "";
 
-  for(let i=1;i<=90;i++){
+  for(let i = 1; i <= 90; i++) {
     const cell = document.createElement("div");
 
-    const score = parseInt(localStorage.getItem("day"+i) || "0");
+    const score = parseInt(localStorage.getItem("day" + i) || "0");
 
     let color = "bg-slate-800";
 
@@ -156,11 +169,11 @@ function buildGrid(){
     else if(score === 2) color = "bg-amber-500";
     else if(score === 1) color = "bg-rose-500";
 
-   let isToday = (i === parseInt(localStorage.getItem("currentDay") || "1"));
+    let isToday = (i === currentDay);
 
-cell.className = `h-6 w-6 rounded ${color} 
-${isToday ? "ring-2 ring-yellow-300" : ""}
-transition transform hover:scale-110`;
+    cell.className = `h-6 w-6 rounded ${color}
+      ${isToday ? "ring-2 ring-yellow-300" : ""}
+      transition transform hover:scale-110`;
 
     cell.title = `Day ${i} — Score: ${score}/4`;
 
@@ -168,25 +181,11 @@ transition transform hover:scale-110`;
   }
 }
 
-
-// Track today's progress into grid
-function updateGrid(){
-  let score = parseInt(localStorage.getItem("todayScore") || "0");
-
-  localStorage.setItem("day" + currentDay, score);
-
-  buildGrid();
-}
-
-  let currentDay = parseInt(localStorage.getItem("currentDay")||"1");
-  let score = localStorage.getItem("todayScore")||0;
-
-  localStorage.setItem("day"+currentDay,score);
-}
-
+// ✅ Initialize everything
 updateScore();
 updateGrid();
 buildGrid();
+</script>
 </script>
 
 </body>
