@@ -14,7 +14,7 @@
 <!-- Header -->
 <div class="flex justify-between items-center">
   <h1 class="text-3xl font-bold">Full Control Panel</h1>
-  <a href="/" class="text-sm text-emerald-300">← Back</a>
+  <a href="/" class="text-blue-400">← Back</a>
 </div>
 
 <!-- Today -->
@@ -28,12 +28,12 @@
 
   <div class="mt-3 text-lg">
     Score: <span id="score">0</span>/4
-    <button
-onclick="nextDay()" 
-class="mt-3 px-3 py-1 bg-blue-500 rounded hover:bg-blue-600">
-Complete Day →
-</button>
   </div>
+
+  <button onclick="nextDay()" 
+    class="mt-3 px-3 py-1 bg-blue-500 rounded hover:bg-blue-600">
+    Complete Day →
+  </button>
 </div>
 
 <!-- Grid -->
@@ -45,142 +45,96 @@ Complete Day →
 </div>
 
 <script>
-(function () {
-  // ---- Required elements (must exist in your HTML) ----
-  const grid = document.getElementById("grid");
-  const scoreEl = document.getElementById("score");
-  const bodyCb = document.getElementById("body");
-  const sobrietyCb = document.getElementById("sobriety");
-  const careerCb = document.getElementById("career");
-  const mindCb = document.getElementById("mind");
+const boxes = ["body","sobriety","career","mind"];
+const scoreEl = document.getElementById("score");
+const grid = document.getElementById("grid");
 
-  // If anything is missing, show an on-page diagnostic and stop.
-  const missing = [];
-  if (!grid) missing.push('div id="grid"');
-  if (!scoreEl) missing.push('span id="score"');
-  if (!bodyCb) missing.push('input id="body"');
-  if (!sobrietyCb) missing.push('input id="sobriety"');
-  if (!careerCb) missing.push('input id="career"');
-  if (!mindCb) missing.push('input id="mind"');
+// INIT
+if(!localStorage.getItem("initialized")){
+  localStorage.setItem("initialized","true");
+  localStorage.setItem("currentDay","1");
+}
 
-  if (missing.length) {
-    const host = document.querySelector(".bg-slate-800") || document.body;
-    const warn = document.createElement("div");
-    warn.className =
-      "mt-4 p-4 rounded-xl border border-rose-400/40 bg-rose-500/10 text-rose-100";
-    warn.innerHTML =
-      "<div class='font-semibold'>Grid cannot render — missing elements:</div>" +
-      "<ul class='list-disc ml-6 mt-2'>" +
-      missing.map((m) => `<li>${m}</li>`).join("") +
-      "</ul>" +
-      "<div class='text-sm text-rose-200/80 mt-2'>Fix the IDs in full.html to match exactly, then refresh.</div>";
-    host.appendChild(warn);
-    return;
+let currentDay = parseInt(localStorage.getItem("currentDay"));
+
+// LOAD STATE
+boxes.forEach(id=>{
+  if(localStorage.getItem(id)==="true"){
+    document.getElementById(id).checked = true;
   }
+});
 
-  const boxes = ["body", "sobriety", "career", "mind"];
+// HANDLE CHECKBOX
+boxes.forEach(id=>{
+  document.getElementById(id).addEventListener("change",()=>{
+    localStorage.setItem(id,document.getElementById(id).checked);
+    updateScore();
+  });
+});
 
-  // ---- Initialize storage safely ----
-  if (!localStorage.getItem("initialized")) {
-    localStorage.setItem("initialized", "true");
-    localStorage.setItem("currentDay", "1");
-  }
-
-  let currentDay = parseInt(localStorage.getItem("currentDay") || "1", 10);
-  if (Number.isNaN(currentDay) || currentDay < 1) currentDay = 1;
-  if (currentDay > 90) currentDay = 90;
-  localStorage.setItem("currentDay", String(currentDay));
-
-  // ---- Load checkbox states (per-day not needed; this is just “today’s toggles”) ----
-  boxes.forEach((id) => {
-    const el = document.getElementById(id);
-    el.checked = localStorage.getItem(id) === "true";
+// SCORE
+function updateScore(){
+  let score = 0;
+  boxes.forEach(id=>{
+    if(document.getElementById(id).checked) score++;
   });
 
-  // ---- Helpers ----
-  function getTodayScore() {
-    let s = 0;
-    boxes.forEach((id) => {
-      if (document.getElementById(id).checked) s++;
-    });
-    return s;
-  }
+  scoreEl.textContent = score;
 
-  function scoreToColor(score) {
-    // 0 slate, 1 rose, 2 amber, 3 emerald, 4 bright emerald
-    if (score === 4) return "bg-emerald-400";
-    if (score === 3) return "bg-emerald-600";
-    if (score === 2) return "bg-amber-500";
-    if (score === 1) return "bg-rose-500";
-    return "bg-slate-700";
-  }
+  localStorage.setItem("day"+currentDay,score);
 
-  // ---- Build the 90-day grid (always renders 90 cells) ----
-  function buildGrid() {
-    grid.innerHTML = "";
+  buildGrid();
+}
 
-    for (let i = 1; i <= 90; i++) {
-      const cell = document.createElement("div");
+// GRID
+function buildGrid(){
+  grid.innerHTML="";
 
-      const score = parseInt(localStorage.getItem("day" + i) || "0", 10);
-      const prevScore = parseInt(localStorage.getItem("day" + (i - 1)) || "0", 10);
+  for(let i=1;i<=90;i++){
+    const cell = document.createElement("div");
 
-      const isStrong = score >= 3;
-      const wasStrong = prevScore >= 3;
+    const score = parseInt(localStorage.getItem("day"+i)||"0");
+    const prevScore = parseInt(localStorage.getItem("day"+(i-1))||"0");
 
-      // Visible chain: strong day after strong day pulls left to “merge”
-      const chainClass = isStrong && wasStrong ? "-ml-1 rounded-none" : "rounded";
+    let color = "bg-slate-700";
 
-      const todayRing = i === currentDay ? "ring-2 ring-yellow-300" : "";
+    if(score===4) color="bg-emerald-400";
+    else if(score===3) color="bg-emerald-600";
+    else if(score===2) color="bg-amber-500";
+    else if(score===1) color="bg-rose-500";
 
-      cell.className =
-        `h-6 w-6 ${chainClass} ${scoreToColor(score)} ${todayRing}`.trim();
-
-      cell.title = `Day ${i} — Score: ${score}/4`;
-
-      grid.appendChild(cell);
+    // SIMPLE & RELIABLE CHAIN (no fragile layout tricks)
+    let border = "";
+    if(score>=3 && prevScore>=3){
+      border = "border-l-2 border-emerald-300";
     }
+
+    let highlight = (i===currentDay) ? "ring-2 ring-yellow-300" : "";
+
+    cell.className = `h-6 w-6 ${color} ${border} ${highlight}`;
+
+    grid.appendChild(cell);
   }
+}
 
-  // ---- Save today’s score into the current day ----
-  function persistToday() {
-    const score = getTodayScore();
-    scoreEl.textContent = String(score);
+// NEXT DAY
+function nextDay(){
+  currentDay++;
+  localStorage.setItem("currentDay",currentDay);
 
-    localStorage.setItem("todayScore", String(score));
-    localStorage.setItem("day" + currentDay, String(score));
-
-    buildGrid();
-  }
-
-  // ---- Checkbox handlers ----
-  boxes.forEach((id) => {
-    const el = document.getElementById(id);
-    el.addEventListener("change", () => {
-      localStorage.setItem(id, String(el.checked));
-      persistToday();
-    });
+  boxes.forEach(id=>{
+    document.getElementById(id).checked=false;
+    localStorage.removeItem(id);
   });
 
-  // ---- Optional: advance day if your button calls nextDay() ----
-  window.nextDay = function nextDay() {
-    // lock today's score before advancing
-    persistToday();
+  updateScore();
+  buildGrid();
+}
 
-    currentDay = Math.min(90, currentDay + 1);
-    localStorage.setItem("currentDay", String(currentDay));
-
-    // reset toggles for the new day
-    boxes.forEach((id) => {
-      const el = document.getElementById(id);
-      el.checked = false;
-      localStorage.removeItem(id);
-    });
-
-    persistToday();
-  };
-
-  // ---- Initial render ----
-  persistToday();
-})();
+// INIT LOAD
+updateScore();
+buildGrid();
 </script>
+
+</body>
+</html>
