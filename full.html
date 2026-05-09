@@ -150,7 +150,11 @@ function buildGrid(){
     else if(score === 2) color = "bg-amber-500";
     else if(score === 1) color = "bg-rose-500";
 
-    cell.className = `h-6 w-6 rounded ${color} transition transform hover:scale-110`;
+   let isToday = (i === parseInt(localStorage.getItem("currentDay") || "1"));
+
+cell.className = `h-6 w-6 rounded ${color} 
+${isToday ? "ring-2 ring-yellow-300" : ""}
+transition transform hover:scale-110`;
 
     cell.title = `Day ${i} — Score: ${score}/4`;
 
