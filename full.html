@@ -1,5 +1,3 @@
-let currentDay = parseInt(localStorage.getItem("currentDay") || "1");
-localStorage.setItem("currentDay", currentDay);
 
 
 <!DOCTYPE html>
@@ -9,6 +7,10 @@ localStorage.setItem("currentDay", currentDay);
 <title>Full Control Panel</title>
 https://cdn.tailwindcss.comscript>
 </head>
+
+  let currentDay = parseInt(localStorage.getItem("currentDay") || "1");
+localStorage.setItem("currentDay", currentDay);
+
 
 <body class="bg-slate-950 text-white p-6">
 
